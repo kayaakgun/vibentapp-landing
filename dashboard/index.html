@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#171444">
+  <title>Vibent Yönetim</title>
+  <link rel="icon" type="image/png" href="/assets/vibent-icon.png">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+  <script defer src="/dashboard/config.js"></script>
+  <script defer src="/dashboard/dashboard.js"></script>
+</head>
+<body>
+  <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+  <main id="login-view" class="login-layout">
+    <section class="login-card" aria-labelledby="login-title">
+      <div class="brand"><img src="/assets/vibent-icon.png" alt="" width="44" height="44"><span>Vibent</span></div>
+      <div class="login-heading">
+        <span class="eyebrow">YÖNETİM ALANI</span>
+        <h1 id="login-title">İçerikleri yönet</h1>
+        <p>Uygulamada kullandığın yönetici hesabıyla giriş yap.</p>
+      </div>
+      <form id="login-form">
+        <label for="email">E-posta</label>
+        <input id="email" name="email" type="email" autocomplete="username" required>
+        <label for="password">Şifre</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button id="login-button" class="primary-button" type="submit">Giriş yap</button>
+      </form>
+      <p id="login-error" class="form-error" role="alert" hidden></p>
+      <a class="back-link" href="/">← Tanıtım sitesine dön</a>
+    </section>
+    <aside class="login-aside" aria-hidden="true"><span class="orb"></span><p>Moduna uygun<br>her şeyi bir arada.</p></aside>
+  </main>
+
+  <div id="app-view" class="app-shell" hidden>
+    <aside class="sidebar">
+      <a class="brand sidebar-brand" href="/"><img src="/assets/vibent-icon.png" alt="" width="38" height="38"><span>Vibent</span></a>
+      <span class="sidebar-caption">YÖNETİM</span>
+      <nav aria-label="Yönetim bölümleri">
+        <button id="tables-nav" class="nav-item selected" type="button">▦ <span>Tablolar</span></button>
+        <button id="media-nav" class="nav-item" type="button">▧ <span>Görseller</span></button>
+      </nav>
+      <div class="sidebar-foot"><span id="account-email"></span><button id="logout-button" type="button">Çıkış yap</button></div>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-header"><div><span class="eyebrow">TEST ORTAMI</span><h1 id="page-title">Tablolar</h1></div><a href="/" class="site-link">Siteyi gör ↗</a></header>
+      <section id="tables-view" class="tables-layout" aria-label="Tablo yönetimi">
+        <aside class="table-sidebar"><label for="table-search">Tablo ara</label><input id="table-search" type="search" placeholder="Tablo adı"><div id="table-list" class="table-list"></div></aside>
+        <div class="table-content"><div class="content-toolbar"><div><h2 id="table-title">Bir tablo seç</h2><p id="table-description">Kayıtları görüntüle ve düzenle.</p></div><button id="add-row-button" class="primary-button" type="button" disabled>+ Yeni kayıt</button></div><div class="search-toolbar"><input id="row-search" type="search" placeholder="Bu sayfadaki kayıtlarda ara" aria-label="Bu sayfadaki kayıtlarda ara"><button id="refresh-button" type="button">Yenile</button></div><div id="table-state" class="table-state">Tablolar yükleniyor…</div><div id="rows-container" class="rows-container" hidden><table><thead id="rows-head"></thead><tbody id="rows-body"></tbody></table></div><div class="pagination"><button id="prev-page" type="button">← Önceki</button><span id="page-info"></span><button id="next-page" type="button">Sonraki →</button></div></div>
+      </section>
+      <section id="media-view" class="media-view" hidden aria-label="Görsel yönetimi"><div class="media-card"><span class="eyebrow">HOBİ GÖRSELLERİ</span><h2>Yeni kapak görseli</h2><p>JPG görseli yükle. Oluşan bağlantıyı kopyalayıp ilgili hobinin görsel alanına yapıştırabilirsin.</p><form id="upload-form"><label for="image-file">Görsel seç</label><input id="image-file" type="file" accept="image/jpeg,.jpg,.jpeg" required><button id="upload-button" class="primary-button" type="submit">Görseli yükle</button></form><div id="upload-result" class="upload-result" hidden><img id="upload-preview" alt="Yüklenen hobi görseli"><label for="upload-url">Görsel bağlantısı</label><div class="copy-row"><input id="upload-url" readonly><button id="copy-url-button" type="button">Kopyala</button></div></div></div></section>
+    </main>
+  </div>
+
+  <dialog id="record-dialog" aria-labelledby="dialog-title"><form id="record-form" method="dialog"><header><div><span class="eyebrow">KAYIT</span><h2 id="dialog-title">Kayıt düzenle</h2></div><button id="close-dialog" type="button" aria-label="Kapat">×</button></header><div id="record-fields" class="record-fields"></div><p id="record-error" class="form-error" role="alert" hidden></p><footer><button id="delete-button" class="danger-button" type="button" hidden>Kaydı sil</button><span></span><button id="cancel-button" type="button">Vazgeç</button><button id="save-button" class="primary-button" type="submit">Kaydet</button></footer></form></dialog>
+</body>
+</html>
