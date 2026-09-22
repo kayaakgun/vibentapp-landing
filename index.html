@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171444">
+  <meta name="description" content="Vibent ile moduna uygun etkinlikleri ve toplulukları keşfet. Yeni insanlarla gerçek hayatta buluş, istersen kendi etkinliğini oluştur.">
+  <title>Vibent — Modunu bul. Ana katıl.</title>
+  <link rel="icon" type="image/png" href="assets/vibent-icon.png">
+  <style>
+    :root { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:#f8f7ff; background:#111138; scroll-behavior:smooth; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:320px; }
+    a { color:inherit; text-decoration:none; }
+    button, summary { font:inherit; }
+    img { display:block; max-width:100%; }
+    section[id] { scroll-margin-top:92px; }
+    .container { width:min(100% - 48px, 1180px); margin-inline:auto; }
+    .site-header { position:sticky; top:0; z-index:30; background:rgba(17,17,56,.92); backdrop-filter:blur(18px); border-bottom:1px solid rgba(255,255,255,.1); }
+    .header-inner { min-height:76px; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+    .brand { display:inline-flex; align-items:center; gap:11px; font-size:1.55rem; font-weight:800; letter-spacing:-.045em; white-space:nowrap; }
+    .brand img { width:42px; height:42px; border-radius:50%; }
+    .desktop-nav { display:flex; align-items:center; gap:28px; color:#dad8f0; font-size:.93rem; font-weight:600; }
+    .desktop-nav a:hover, .footer-links a:hover { color:#fff; }
+    .pill-link { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 20px; border-radius:999px; background:#5844f5; color:#fff; font-weight:700; transition:background .2s, transform .2s; }
+    .pill-link:hover { background:#7160ff; transform:translateY(-2px); }
+    .mobile-nav { display:none; }
+    .hero { position:relative; isolation:isolate; overflow:hidden; background:radial-gradient(circle at 87% 32%,rgba(91,69,246,.39),transparent 34%),radial-gradient(circle at 42% 100%,rgba(255,96,112,.18),transparent 35%),#111138; }
+    .hero::before { content:""; position:absolute; z-index:-1; width:500px; height:500px; border:1px solid rgba(185,171,255,.15); border-radius:50%; right:7%; top:12%; }
+    .hero-inner { min-height:650px; display:grid; grid-template-columns:48% 52%; align-items:center; gap:10px; padding-block:54px 65px; }
+    .eyebrow { display:inline-flex; margin-bottom:22px; padding:9px 14px; border:1px solid rgba(255,255,255,.16); border-radius:999px; color:#beb7ff; font-size:.78rem; font-weight:800; letter-spacing:.105em; }
+    h1 { margin:0; font-size:clamp(3.5rem,6.7vw,5.75rem); line-height:1.01; letter-spacing:-.07em; font-weight:850; }
+    h1 span { color:#a99bff; }
+    .hero-copy>p { max-width:480px; margin:27px 0 32px; color:#d1cee9; font-size:1.16rem; line-height:1.65; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:0 24px; border-radius:15px; font-size:.96rem; font-weight:750; transition:transform .2s, background .2s; }
+    .button:hover { transform:translateY(-2px); }
+    .button.primary { background:#5844f5; box-shadow:0 12px 28px rgba(80,55,230,.3); }
+    .button.primary:hover { background:#7261ff; }
+    .button.secondary { border:1px solid rgba(255,255,255,.2); }
+    .button.secondary:hover { background:rgba(255,255,255,.08); }
+    .phones { height:500px; position:relative; }
+    .phone { position:absolute; width:33%; max-width:214px; padding:5px; border:5px solid #25253a; border-radius:34px; background:#fff; box-shadow:0 26px 62px rgba(0,0,0,.38); overflow:hidden; }
+    .phone img { width:100%; border-radius:23px; }
+    .phone.messages { left:2%; top:88px; transform:rotate(-11deg); }
+    .phone.create { left:34%; top:16px; z-index:2; width:36%; max-width:226px; transform:rotate(1deg); }
+    .phone.notifications { right:0; top:94px; transform:rotate(10deg); }
+    .section { padding-block:94px; }
+    .section-heading { max-width:720px; margin-bottom:34px; }
+    .kicker { display:block; margin-bottom:13px; color:#b5aaff; font-size:.79rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h2 { margin:0; font-size:clamp(2.2rem,4vw,3.6rem); letter-spacing:-.055em; line-height:1.12; }
+    .section-heading p { margin:19px 0 0; color:#c9c7e0; font-size:1.06rem; line-height:1.6; }
+    .how { background:#1b194e; }
+    .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .step { padding:28px; min-height:235px; border:1px solid rgba(255,255,255,.12); border-radius:22px; background:rgba(255,255,255,.035); }
+    .step-number { display:inline-block; margin-bottom:35px; color:#aaa0ff; font-size:.85rem; font-weight:800; }
+    .step h3 { margin:0 0 10px; font-size:1.38rem; letter-spacing:-.025em; }
+    .step p { margin:0; color:#c9c7e0; line-height:1.55; }
+    .moods { display:flex; flex-wrap:wrap; gap:10px; margin-top:30px; }
+    .mood { display:inline-flex; padding:12px 18px; border-radius:999px; font-weight:700; }
+    .mood.energy { color:#a93a29; background:#ffe2dc; }
+    .mood.social { color:#006b4c; background:#d5f7e6; }
+    .mood.calm { color:#4330cd; background:#e6e3ff; }
+    .features { background:#111138; }
+    .feature-list { display:grid; grid-template-columns:repeat(3,1fr); gap:19px; }
+    .feature { padding:20px; border:1px solid rgba(255,255,255,.12); border-radius:24px; background:#1b194e; }
+    .feature-image { height:270px; overflow:hidden; border-radius:17px; background:#efeffb; display:flex; justify-content:center; }
+    .feature-image img { width:auto; height:100%; max-width:none; }
+    .feature h3 { margin:22px 0 8px; font-size:1.32rem; letter-spacing:-.025em; }
+    .feature p { margin:0 0 5px; color:#c8c6df; line-height:1.55; }
+    .video-section { background:linear-gradient(140deg,#3429a5,#1d1b5d 62%,#19154e); }
+    .hero-store { max-width:490px; margin-top:30px; padding-top:20px; border-top:1px solid rgba(255,255,255,.14); scroll-margin-top:110px; }
+    .hero-store-label { display:block; margin-bottom:12px; color:#beb7ff; font-size:.78rem; font-weight:800; letter-spacing:.1em; }
+    .store-buttons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+    .store-badge { display:flex; align-items:center; gap:11px; width:100%; min-height:72px; padding:12px 15px; border:1px solid rgba(255,255,255,.2); border-radius:16px; background:#101031; color:#fff; text-align:left; cursor:not-allowed; opacity:.78; }
+    .store-symbol { flex:none; width:30px; font-size:1rem; font-weight:800; line-height:1; text-align:center; }
+    .store-badge small, .store-badge strong { display:block; }
+    .store-badge small { margin-bottom:3px; color:#c2bfdc; font-size:.78rem; }
+    .store-badge strong { font-size:1.03rem; line-height:1.2; }
+    .download-note { margin:11px 0 0!important; color:#c2bfdc!important; font-size:.83rem!important; line-height:1.4!important; }
+    .video-layout { display:grid; grid-template-columns:34% 66%; align-items:center; gap:30px; }
+    .video-layout p { color:#dad7f5; line-height:1.6; font-size:1.05rem; }
+    .video-frame { overflow:hidden; border:1px solid rgba(255,255,255,.2); border-radius:22px; box-shadow:0 23px 55px rgba(4,3,33,.3); background:#3023b9; }
+    .video-frame video { width:100%; aspect-ratio:16/9; display:block; }
+    .faq { background:#f8f8ff; color:#171732; }
+    .faq .kicker { color:#4a35d8; }
+    .faq .section-heading p { color:#5b5b75; }
+    .faq-list { max-width:850px; }
+    .faq-list details { border-bottom:1px solid #deddf0; }
+    .faq-list details:first-child { border-top:1px solid #deddf0; }
+    .faq-list summary { list-style:none; cursor:pointer; position:relative; padding:24px 43px 24px 0; font-size:1.1rem; font-weight:700; }
+    .faq-list summary::-webkit-details-marker { display:none; }
+    .faq-list summary::after { content:"+"; position:absolute; right:7px; top:18px; font-size:1.55rem; font-weight:400; color:#4a35d8; }
+    .faq-list details[open] summary::after { content:"−"; }
+    .faq-list details p { max-width:720px; margin:0 0 24px; color:#53536f; line-height:1.65; }
+    .site-footer { background:#111138; border-top:1px solid rgba(255,255,255,.1); }
+    .footer-main { display:flex; justify-content:space-between; gap:30px; padding-block:52px 42px; }
+    .footer-main p { max-width:330px; margin:17px 0 0; color:#c9c6e0; line-height:1.55; }
+    .footer-links { display:flex; flex-wrap:wrap; align-items:start; gap:17px 25px; color:#d9d7ee; font-weight:600; font-size:.95rem; }
+    .footer-bottom { padding:21px 0 27px; border-top:1px solid rgba(255,255,255,.1); color:#a8a6c4; font-size:.87rem; }
+    :focus-visible { outline:3px solid #f7bb71; outline-offset:4px; }
+    @media (max-width:980px) { .desktop-nav { gap:14px; } .hero-inner { grid-template-columns:1fr; padding-bottom:30px; } .hero-copy { max-width:700px; } .phones { width:min(620px,100%); margin:auto; height:480px; } .video-layout { grid-template-columns:1fr; } }
+    @media (max-width:720px) { .container { width:min(100% - 32px, 1180px); } .desktop-nav, .header-inner>.pill-link { display:none; } .mobile-nav { display:block; position:relative; } .mobile-nav summary { list-style:none; display:flex; align-items:center; justify-content:center; width:44px; height:44px; border:1px solid rgba(255,255,255,.2); border-radius:12px; cursor:pointer; font-size:1.4rem; } .mobile-nav summary::-webkit-details-marker { display:none; } .mobile-menu { position:absolute; right:0; top:52px; display:flex; flex-direction:column; gap:0; min-width:220px; padding:8px; border:1px solid rgba(255,255,255,.16); border-radius:16px; background:#24215b; box-shadow:0 15px 30px rgba(0,0,0,.3); } .mobile-menu a { padding:12px 13px; border-radius:9px; font-weight:600; } .mobile-menu a:hover { background:rgba(255,255,255,.1); } .header-inner { min-height:68px; } .hero-inner { min-height:0; padding-block:52px 10px; } h1 { font-size:clamp(3.45rem,12vw,5rem); } .phones { height:430px; } .section { padding-block:68px; } .steps, .feature-list { grid-template-columns:1fr; } .step { min-height:0; } .step-number { margin-bottom:18px; } .feature { display:grid; grid-template-columns:150px 1fr; column-gap:20px; align-items:center; } .feature-image { grid-row:span 2; height:210px; } .feature h3 { margin-top:0; } .footer-main { flex-direction:column; } }
+    @media (max-width:490px) { .hero-copy>p { font-size:1.04rem; } .phones { height:345px; width:116%; margin-left:-8%; } .phone { border-width:3px; padding:3px; border-radius:23px; } .phone img { border-radius:17px; } .phone.messages { top:55px; } .phone.create { top:9px; } .phone.notifications { top:62px; } .feature { display:block; } .feature-image { height:230px; } .store-badge { gap:7px; padding:10px; } .store-symbol { width:24px; font-size:.85rem; } .store-badge strong { font-size:.93rem; } .footer-links { display:grid; grid-template-columns:repeat(2,1fr); } }
+    @media (prefers-reduced-motion:reduce) { :root { scroll-behavior:auto; } *,*::before,*::after { transition:none!important; animation:none!important; } }
+  </style>
+</head>
+<body>
+  <header class="site-header" id="ust">
+    <div class="container header-inner">
+      <a class="brand" href="#ust" aria-label="Vibent, sayfanın başına dön"><img src="assets/vibent-icon.png" alt=""><span>Vibent</span></a>
+      <nav class="desktop-nav" aria-label="Ana menü">
+        <a href="#nasil-calisir">Nasıl çalışır</a><a href="#ozellikler">Özellikler</a><a href="#video">Video</a><a href="#sss">SSS</a>
+      </nav>
+      <a class="pill-link" href="#indir">Uygulamayı indir</a>
+      <details class="mobile-nav"><summary aria-label="Menüyü aç">☰</summary><nav class="mobile-menu" aria-label="Mobil menü"><a href="#nasil-calisir">Nasıl çalışır</a><a href="#ozellikler">Özellikler</a><a href="#video">Video</a><a href="#sss">SSS</a><a href="#indir">Uygulamayı indir</a></nav></details>
+    </div>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <span class="eyebrow">ŞEHRİN RİTMİNE KATIL</span>
+          <h1 id="hero-title">Modunu bul.<br><span>Ana katıl.</span></h1>
+          <p>Enerji at, sosyalleş ya da biraz kafa dinle. Vibent, moduna uygun insanları ve etkinlikleri bir araya getirir.</p>
+          <div class="actions"><a class="button primary" href="#video">Tanıtım videosunu izle ↗</a><a class="button secondary" href="#indir">Uygulamayı indir →</a></div>
+          <div class="hero-store" id="indir" aria-label="Uygulama mağazaları">
+            <span class="hero-store-label">UYGULAMAYI İNDİR</span>
+            <div class="store-buttons">
+              <button class="store-badge" type="button" disabled aria-label="Google Play indirme bağlantısı yakında"><span class="store-symbol" aria-hidden="true">GP</span><span><small>Yakında</small><strong>Google Play</strong></span></button>
+              <button class="store-badge" type="button" disabled aria-label="App Store indirme bağlantısı yakında"><span class="store-symbol" aria-hidden="true">iOS</span><span><small>Yakında</small><strong>App Store</strong></span></button>
+            </div>
+            <p class="download-note">Mağaza bağlantıları yayınlandığında bu butonlar aktif olacak.</p>
+          </div>
+        </div>
+        <div class="phones" aria-label="Vibent uygulamasının gerçek ekranları">
+          <div class="phone messages"><img src="assets/messages.jpg" alt="Vibent mesajlar ekranı" width="461" height="1000"></div>
+          <div class="phone create"><img src="assets/create.jpg" alt="Vibent etkinlik oluşturma ekranı" width="461" height="1000"></div>
+          <div class="phone notifications"><img src="assets/notifications.jpg" alt="Vibent bildirimler ekranı" width="461" height="1000"></div>
+        </div>
+      </div>
+    </section>
+    <section class="section how" id="nasil-calisir" aria-labelledby="how-title">
+      <div class="container">
+        <div class="section-heading"><span class="kicker">NASIL ÇALIŞIR?</span><h2 id="how-title">Bir mod seç. Gerisi birlikte gelsin.</h2><p>Vibent, o an ne yapmak istediğinden yola çıkarak yakınındaki deneyimleri keşfetmeni sağlar.</p></div>
+        <div class="steps">
+          <article class="step"><span class="step-number">01 / MODUNU SEÇ</span><h3>Nasıl hissediyorsun?</h3><p>Enerji atmak, sosyalleşmek veya sakinleşmek için bir mod seç.</p></article>
+          <article class="step"><span class="step-number">02 / KEŞFET</span><h3>Sana uygun anları bul</h3><p>Etkinlikleri ve toplulukları incele; sana yakın olanlara göz at.</p></article>
+          <article class="step"><span class="step-number">03 / KATIL</span><h3>Gerçek hayatta buluş</h3><p>Bir etkinliğe katıl ve ortak ilgi alanlarını paylaşan insanlarla tanış.</p></article>
+        </div>
+        <div class="moods" aria-label="Vibent modları"><span class="mood energy">⚡ Enerji At</span><span class="mood social">☕ Sosyalleş</span><span class="mood calm">✦ Kafa Dinle</span></div>
+      </div>
+    </section>
+    <section class="section features" id="ozellikler" aria-labelledby="features-title">
+      <div class="container">
+        <div class="section-heading"><span class="kicker">VIBENT’TE NELER VAR?</span><h2 id="features-title">Buluşmanın her adımı tek yerde.</h2><p>Planını oluştur, sohbeti takip et ve etkinliklerinden haberdar ol.</p></div>
+        <div class="feature-list">
+          <article class="feature"><div class="feature-image"><img src="assets/create.jpg" alt="Etkinlik oluşturma ekranı" loading="lazy" width="461" height="1000"></div><h3>Etkinlik oluştur</h3><p>Kendi buluşmanı planla ve moduna uygun bir deneyim başlat.</p></article>
+          <article class="feature"><div class="feature-image"><img src="assets/messages.jpg" alt="Etkinlik mesajları ekranı" loading="lazy" width="461" height="1000"></div><h3>Sohbete katıl</h3><p>Etkinlik grubundaki mesajları ve planları tek yerden takip et.</p></article>
+          <article class="feature"><div class="feature-image"><img src="assets/notifications.jpg" alt="Bildirimler ekranı" loading="lazy" width="461" height="1000"></div><h3>Gelişmeleri kaçırma</h3><p>Katıldığın etkinliklerle ilgili bildirimlere kolayca ulaş.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="section video-section" id="video" aria-labelledby="video-title">
+      <div class="container video-layout">
+        <div><span class="kicker">VIBENT’İ İZLE</span><h2 id="video-title">Bir an, yeni bir hikâyeye dönüşebilir.</h2><p>Vibent’in üç modunu, etkinlikleri ve topluluk deneyimini kısa tanıtım filminde gör.</p></div>
+        <div class="video-frame"><video controls preload="metadata" playsinline aria-label="Vibent tanıtım videosu"><source src="assets/vibent-tanitim.mp4" type="video/mp4">Tarayıcın video oynatmayı desteklemiyor.</video></div>
+      </div>
+    </section>
+    <section class="section faq" id="sss" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="section-heading"><span class="kicker">SIK SORULAN SORULAR</span><h2 id="faq-title">Merak ettiklerin</h2><p>Vibent’e başlamadan önce en çok sorulanları burada bulabilirsin.</p></div>
+        <div class="faq-list">
+          <details><summary>Vibent nedir?</summary><p>Vibent; moduna, ilgine ve bulunduğun yere uygun etkinlikleri ve toplulukları keşfetmene yardımcı olan bir buluşma uygulamasıdır.</p></details>
+          <details><summary>Üye olmadan etkinliklere bakabilir miyim?</summary><p>Evet. Misafir olarak etkinlikleri ve detaylarını inceleyebilirsin. Katılmak için hesap oluşturman veya giriş yapman gerekir.</p></details>
+          <details><summary>Standart üyelikle neler yapabilirim?</summary><p>Giriş yaptıktan sonra etkinliklere ve topluluklara katılabilirsin. Mesajlaşma ve etkinlik oluşturma VIP üyeliğe dahildir.</p></details>
+          <details><summary>VIP üyelik ne sağlar?</summary><p>VIP üyeler etkinlik ve topluluklara katılmanın yanında mesajlaşabilir ve kendi etkinliklerini oluşturabilir.</p></details>
+          <details><summary>Etkinlikleri nasıl bulurum?</summary><p>Enerji At, Sosyalleş veya Kafa Dinle modlarından birini seçerek sana uygun etkinlikleri keşfedebilirsin. Konuma göre yakınındaki etkinliklere de bakabilirsin.</p></details>
+          <details><summary>Vibent hangi cihazlarda kullanılabilir?</summary><p>Vibent, iPhone ve Android telefonlar için geliştiriliyor. Mağaza bağlantıları hazır olduğunda bu sayfaya eklenecek.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-main">
+      <div><a class="brand" href="#ust"><img src="assets/vibent-icon.png" alt=""><span>Vibent</span></a><p>Modunu bul. Ana katıl.<br>İyi anlar, birlikte daha güzel.</p></div>
+      <nav class="footer-links" aria-label="Alt menü"><a href="#ust">Başa dön</a><a href="#nasil-calisir">Nasıl çalışır</a><a href="#ozellikler">Özellikler</a><a href="#video">Video</a><a href="#sss">SSS</a><a href="#indir">Uygulamayı indir</a></nav>
+    </div>
+    <div class="container footer-bottom">© 2026 Vibent. Tüm hakları saklıdır.</div>
+  </footer>
+  <script>
+    document.querySelectorAll('.mobile-menu a').forEach((link) => {
+      link.addEventListener('click', () => { document.querySelector('.mobile-nav').open = false; });
+    });
+  </script>
+</body>
+</html>
