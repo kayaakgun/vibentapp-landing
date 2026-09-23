@@ -8,7 +8,9 @@ const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
 const state = {
   session: null, catalog: [], table: null, rows: [], total: 0, page: 0,
   editing: null, userLabels: {}, memberships: [], membershipFilter: "all",
-  membershipsLoaded: false
+  membershipsLoaded: false, users: [], usersTotal: 0, usersPage: 0,
+  hobbies: [], categories: [], moods: [], hobbyMoods: [], hobbyTips: [],
+  hobbyImages: [], hobbyId: null, hobbiesLoaded: false
 };
 let noticeTimer;
 
@@ -442,6 +444,280 @@ function shortDate(value) {
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(date);
 }
 
+function dateOrDash(value) { return value ? shortDate(value) : "—"; }
+
+async function loadUsers() {
+  $("users-state").hidden = false;
+  $("users-state").textContent = "Kullanıcılar yükleniyor…";
+  $("users-table-wrap").hidden = true;
+  try {
+    const result = await rpc("admin_users", {
+      p_search: $("users-search").value.trim(), p_limit: pageSize,
+      p_offset: state.usersPage * pageSize
+    });
+    state.users = result.rows || [];
+    state.usersTotal = result.total || 0;
+    renderUsers();
+  } catch (error) {
+    $("users-state").textContent = `Kullanıcılar yüklenemedi: ${error.message}`;
+    notify(error.message, true);
+  }
+}
+
+function renderUsers() {
+  const body = $("users-rows");
+  body.replaceChildren();
+  for (const row of state.users) {
+    const tr = document.createElement("tr");
+    const person = document.createElement("td");
+    const cell = document.createElement("div");
+    cell.className = "person-cell";
+    const name = document.createElement("strong");
+    name.textContent = [row.first_name, row.last_name].filter(Boolean).join(" ") || row.username || "İsim girilmemiş";
+    const email = document.createElement("small");
+    email.textContent = row.email || "E-posta yok";
+    cell.append(name, email);
+    person.append(cell);
+    const location = document.createElement("td");
+    location.textContent = [row.district, row.city].filter(Boolean).join(", ") || "—";
+    const tier = document.createElement("td");
+    const [status, kind] = membershipStatus(row);
+    const badge = document.createElement("span");
+    badge.className = `status-badge ${kind}`;
+    badge.textContent = status;
+    tier.append(badge);
+    const source = document.createElement("td");
+    source.textContent = row.tier === "vip" ? membershipSource(row) : "—";
+    const created = document.createElement("td");
+    created.textContent = dateOrDash(row.created_at);
+    const signed = document.createElement("td");
+    signed.textContent = dateOrDash(row.last_sign_in_at);
+    const actions = document.createElement("td");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "VIP bölümüne git";
+    button.addEventListener("click", () => {
+      $("membership-search").value = row.email || row.id;
+      switchView("memberships");
+    });
+    actions.append(button);
+    tr.append(person, location, tier, source, created, signed, actions);
+    body.append(tr);
+  }
+  $("users-table-wrap").hidden = !state.users.length;
+  $("users-state").hidden = !!state.users.length;
+  if (!state.users.length) $("users-state").textContent = "Eşleşen kullanıcı yok.";
+  const start = state.usersTotal ? state.usersPage * pageSize + 1 : 0;
+  const end = Math.min((state.usersPage + 1) * pageSize, state.usersTotal);
+  $("users-page-info").textContent = `${start}–${end} / ${state.usersTotal}`;
+  $("users-prev").disabled = state.usersPage === 0;
+  $("users-next").disabled = end >= state.usersTotal;
+}
+
+async function allAdminRows(table) {
+  const rows = [];
+  let total = 0;
+  do {
+    const result = await rpc("admin_rows", { p_table: table, p_limit: 100, p_offset: rows.length });
+    rows.push(...(result.rows || []));
+    total = result.total || 0;
+    if (!result.rows?.length) break;
+  } while (rows.length < total);
+  return rows;
+}
+
+async function loadHobbies(preferredId = state.hobbyId) {
+  $("hobby-list").textContent = "Hobiler yükleniyor…";
+  try {
+    const [hobbies, categories, moods, hobbyMoods, hobbyTips, hobbyImages] = await Promise.all([
+      "hobbies", "categories", "moods", "hobby_moods", "hobby_tips", "hobby_images"
+    ].map(allAdminRows));
+    Object.assign(state, { hobbies, categories, moods, hobbyMoods, hobbyTips, hobbyImages, hobbiesLoaded: true });
+    renderHobbyList();
+    editHobby(preferredId && hobbies.some((hobby) => hobby.id === preferredId) ? preferredId : null);
+  } catch (error) {
+    $("hobby-list").textContent = `Hobiler yüklenemedi: ${error.message}`;
+    notify(error.message, true);
+  }
+}
+
+function renderHobbyList() {
+  const query = $("hobby-search").value.trim().toLocaleLowerCase("tr");
+  const list = $("hobby-list");
+  list.replaceChildren();
+  for (const hobby of [...state.hobbies].sort((a, b) => a.name.localeCompare(b.name, "tr"))
+    .filter((item) => item.name.toLocaleLowerCase("tr").includes(query))) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "hobby-list-item";
+    button.classList.toggle("selected", state.hobbyId === hobby.id);
+    const image = document.createElement("img");
+    image.src = hobby.hero_image_url || "/assets/vibent-icon.png";
+    image.alt = "";
+    const details = document.createElement("span");
+    const name = document.createElement("strong");
+    name.textContent = hobby.name;
+    const status = document.createElement("small");
+    status.textContent = hobby.is_active ? "Yayında" : "Taslak";
+    details.append(name, status);
+    button.append(image, details);
+    button.addEventListener("click", () => editHobby(hobby.id));
+    list.append(button);
+  }
+  if (!list.children.length) list.textContent = "Eşleşen hobi yok.";
+}
+
+function editHobby(id = null) {
+  state.hobbyId = id;
+  const hobby = state.hobbies.find((item) => item.id === id) || {};
+  const form = $("hobby-form");
+  form.reset();
+  $("hobby-error").hidden = true;
+  $("hobby-editor-title").textContent = hobby.name || "Yeni hobi";
+  const category = $("hobby-category");
+  category.replaceChildren(new Option("Kategori seç", ""));
+  for (const item of state.categories.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))) {
+    category.add(new Option(item.name, item.id));
+  }
+  const names = ["name", "slug", "category_id", "sort_order", "short_description", "description",
+    "difficulty", "environment", "typical_duration", "typical_duration_minutes", "social_level", "energy_level",
+    "what_to_expect", "what_to_bring", "beginner_note", "safety_note", "video_url"];
+  for (const name of names) form.elements.namedItem(name).value = hobby[name] ?? "";
+  if (!id) form.elements.namedItem("sort_order").value = "0";
+  form.elements.namedItem("is_beginner_friendly").checked = hobby.is_beginner_friendly ?? true;
+  form.elements.namedItem("is_active").checked = hobby.is_active ?? false;
+  const moodBox = $("hobby-moods");
+  moodBox.replaceChildren();
+  const selected = new Set(state.hobbyMoods.filter((link) => link.hobby_id === id).map((link) => link.mood_id));
+  for (const mood of state.moods) {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.value = mood.id;
+    input.checked = selected.has(mood.id);
+    label.append(input, ` ${mood.name}`);
+    moodBox.append(label);
+  }
+  for (const type of ["know_before", "bring"]) {
+    form.elements.namedItem(type).value = state.hobbyTips
+      .filter((tip) => tip.hobby_id === id && tip.tip_type === type)
+      .sort((a, b) => a.sort_order - b.sort_order).map((tip) => tip.content).join("\n");
+  }
+  $("hobby-photo-hint").hidden = !!id;
+  $("hobby-photo-file").disabled = !id;
+  $("hobby-photo-upload").disabled = !id;
+  renderHobbyGallery();
+  renderHobbyList();
+}
+
+function renderHobbyGallery() {
+  const hobby = state.hobbies.find((item) => item.id === state.hobbyId);
+  const cover = $("hobby-cover-preview");
+  cover.hidden = !hobby?.hero_image_url;
+  if (hobby?.hero_image_url) cover.src = hobby.hero_image_url;
+  const gallery = $("hobby-gallery");
+  gallery.replaceChildren();
+  for (const photo of state.hobbyImages.filter((item) => item.hobby_id === state.hobbyId)
+    .sort((a, b) => a.sort_order - b.sort_order)) {
+    const card = document.createElement("div");
+    card.className = "photo-card";
+    const image = document.createElement("img");
+    image.src = photo.image_url;
+    image.alt = photo.alt_text || hobby?.name || "Hobi fotoğrafı";
+    const actions = document.createElement("div");
+    const select = document.createElement("button");
+    select.type = "button";
+    select.textContent = hobby?.hero_image_url === photo.image_url ? "Kapak ✓" : "Kapak yap";
+    select.disabled = hobby?.hero_image_url === photo.image_url;
+    select.addEventListener("click", () => setHobbyCover(photo.image_url));
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "Kaldır";
+    remove.addEventListener("click", () => removeHobbyPhoto(photo));
+    actions.append(select, remove);
+    card.append(image, actions);
+    gallery.append(card);
+  }
+}
+
+async function saveHobby(event) {
+  event.preventDefault();
+  const form = $("hobby-form");
+  const button = $("hobby-save");
+  button.disabled = true;
+  $("hobby-error").hidden = true;
+  try {
+    const old = state.hobbies.find((item) => item.id === state.hobbyId) || {};
+    const fields = ["name", "slug", "category_id", "sort_order", "short_description", "description",
+      "difficulty", "environment", "typical_duration", "typical_duration_minutes", "social_level", "energy_level",
+      "what_to_expect", "what_to_bring", "beginner_note", "safety_note", "video_url"];
+    const hobby = { id: state.hobbyId, hero_image_url: old.hero_image_url || null, image_prompt: old.image_prompt || null };
+    for (const name of fields) hobby[name] = form.elements.namedItem(name).value.trim();
+    hobby.is_beginner_friendly = form.elements.namedItem("is_beginner_friendly").checked;
+    hobby.is_active = form.elements.namedItem("is_active").checked;
+    const moodIds = [...$("hobby-moods").querySelectorAll("input:checked")].map((input) => input.value);
+    const tips = ["know_before", "bring"].flatMap((type) => form.elements.namedItem(type).value
+      .split("\n").map((content) => content.trim()).filter(Boolean).map((content) => ({ tip_type: type, content })));
+    const saved = await rpc("admin_hobby_save", { p_hobby: hobby, p_mood_ids: moodIds, p_tips: tips });
+    notify(`“${saved.name}” kaydedildi.`);
+    await loadHobbies(saved.id);
+  } catch (error) {
+    $("hobby-error").textContent = error.message;
+    $("hobby-error").hidden = false;
+  } finally { button.disabled = false; }
+}
+
+async function setHobbyCover(url) {
+  try {
+    await rpc("admin_write", { p_table: "hobbies", p_key: { id: state.hobbyId }, p_values: { hero_image_url: url } });
+    notify("Kapak fotoğrafı değiştirildi.");
+    await loadHobbies(state.hobbyId);
+  } catch (error) { notify(error.message, true); }
+}
+
+async function uploadHobbyPhotos() {
+  const files = [...$("hobby-photo-file").files];
+  if (!state.hobbyId || !files.length) return;
+  if (files.some((file) => file.type !== "image/jpeg" || file.size > 5 * 1024 * 1024)) {
+    notify("Her fotoğraf JPG biçiminde ve en fazla 5 MB olmalı.", true);
+    return;
+  }
+  const button = $("hobby-photo-upload");
+  button.disabled = true;
+  const id = state.hobbyId;
+  try {
+    let cover = state.hobbies.find((item) => item.id === id)?.hero_image_url;
+    for (const file of files) {
+      const path = `hobbies/${id}/${crypto.randomUUID()}.jpg`;
+      await api(`/storage/v1/object/hobby-covers/${path}`, {
+        method: "POST", headers: { "Content-Type": "image/jpeg", "x-upsert": "false" }, body: file
+      });
+      const url = `${config.supabaseUrl}/storage/v1/object/public/hobby-covers/${path}`;
+      await rpc("admin_write", { p_table: "hobby_images", p_key: null,
+        p_values: { hobby_id: id, image_url: url, alt_text: file.name, sort_order: state.hobbyImages.length } });
+      if (!cover) {
+        await rpc("admin_write", { p_table: "hobbies", p_key: { id }, p_values: { hero_image_url: url } });
+        cover = url;
+      }
+    }
+    $("hobby-photo-file").value = "";
+    notify(`${files.length} fotoğraf yüklendi.`);
+    await loadHobbies(id);
+  } catch (error) { notify(`Fotoğraf yükleme tamamlanamadı: ${error.message}`, true); await loadHobbies(id); }
+  finally { button.disabled = false; }
+}
+
+async function removeHobbyPhoto(photo) {
+  const cover = state.hobbies.find((item) => item.id === state.hobbyId)?.hero_image_url;
+  if (cover === photo.image_url) { notify("Önce başka bir fotoğrafı kapak yap.", true); return; }
+  if (!confirm("Fotoğrafı hobi galerisinden kaldırmak istiyor musun? Yüklenen dosya depoda kalır.")) return;
+  try {
+    await rpc("admin_delete", { p_table: "hobby_images", p_key: { id: photo.id } });
+    notify("Fotoğraf galeriden kaldırıldı.");
+    await loadHobbies(state.hobbyId);
+  } catch (error) { notify(error.message, true); }
+}
+
 async function changeVip(row, enable) {
   const person = userLabel(row.user_id)?.name || row.user_id;
   const question = enable
@@ -560,13 +836,17 @@ function renderMemberships() {
 
 function switchView(view) {
   $("tables-view").hidden = view !== "tables";
+  $("users-view").hidden = view !== "users";
   $("memberships-view").hidden = view !== "memberships";
+  $("hobbies-view").hidden = view !== "hobbies";
   $("media-view").hidden = view !== "media";
-  for (const name of ["tables", "memberships", "media"]) {
+  for (const name of ["tables", "users", "memberships", "hobbies", "media"]) {
     $(`${name}-nav`).classList.toggle("selected", name === view);
   }
-  $("page-title").textContent = ({ tables: "Tablolar", memberships: "VIP Üyelikler", media: "Görseller" })[view];
+  $("page-title").textContent = ({ tables: "Tablolar", users: "Kullanıcılar", memberships: "VIP Üyelikler", hobbies: "Hobiler", media: "Görseller" })[view];
+  if (view === "users") loadUsers();
   if (view === "memberships") loadMemberships();
+  if (view === "hobbies") loadHobbies();
 }
 
 $("login-form").addEventListener("submit", async (event) => {
@@ -596,11 +876,27 @@ $("logout-button").addEventListener("click", async () => {
   state.userLabels = {};
   state.memberships = [];
   state.membershipsLoaded = false;
+  state.hobbiesLoaded = false;
+  state.hobbyId = null;
   showLogin();
 });
 $("tables-nav").addEventListener("click", () => switchView("tables"));
+$("users-nav").addEventListener("click", () => switchView("users"));
 $("memberships-nav").addEventListener("click", () => switchView("memberships"));
+$("hobbies-nav").addEventListener("click", () => switchView("hobbies"));
 $("media-nav").addEventListener("click", () => switchView("media"));
+let usersSearchTimer;
+$("users-search").addEventListener("input", () => {
+  clearTimeout(usersSearchTimer);
+  usersSearchTimer = setTimeout(() => { state.usersPage = 0; loadUsers(); }, 300);
+});
+$("users-refresh").addEventListener("click", loadUsers);
+$("users-prev").addEventListener("click", () => { if (state.usersPage > 0) { state.usersPage--; loadUsers(); } });
+$("users-next").addEventListener("click", () => { if ((state.usersPage + 1) * pageSize < state.usersTotal) { state.usersPage++; loadUsers(); } });
+$("hobby-search").addEventListener("input", renderHobbyList);
+$("new-hobby").addEventListener("click", () => editHobby());
+$("hobby-form").addEventListener("submit", saveHobby);
+$("hobby-photo-upload").addEventListener("click", uploadHobbyPhotos);
 $("membership-search").addEventListener("input", renderMemberships);
 for (const button of document.querySelectorAll("[data-membership-filter]")) {
   button.addEventListener("click", () => {
