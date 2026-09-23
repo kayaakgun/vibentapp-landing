@@ -98,6 +98,7 @@ async function loadCatalog() {
   if (!Array.isArray(result)) throw new Error("Yönetici yetkisi doğrulanamadı.");
   state.catalog = result;
   showApp();
+  switchView("tables");
   renderTableList();
   if (result.length) await selectTable(result[0].name);
   else $("table-state").textContent = "Yönetilebilir tablo bulunamadı.";
