@@ -27,7 +27,7 @@
     .mobile-nav { display:none; }
     .hero { position:relative; isolation:isolate; overflow:hidden; background:radial-gradient(circle at 87% 32%,rgba(91,69,246,.39),transparent 34%),radial-gradient(circle at 42% 100%,rgba(255,96,112,.18),transparent 35%),#111138; }
     .hero::before { content:""; position:absolute; z-index:-1; width:500px; height:500px; border:1px solid rgba(185,171,255,.15); border-radius:50%; right:7%; top:12%; }
-    .hero-inner { min-height:650px; display:grid; grid-template-columns:48% 52%; align-items:center; gap:10px; padding-block:54px 65px; }
+    .hero-inner { min-height:650px; display:grid; grid-template-columns:minmax(0,48%) minmax(0,52%); align-items:center; gap:0; padding-block:54px 65px; }
     .eyebrow { display:inline-flex; margin-bottom:22px; padding:9px 14px; border:1px solid rgba(255,255,255,.16); border-radius:999px; color:#beb7ff; font-size:.78rem; font-weight:800; letter-spacing:.105em; }
     h1 { margin:0; font-size:clamp(3.5rem,6.7vw,5.75rem); line-height:1.01; letter-spacing:-.07em; font-weight:850; }
     h1 span { color:#a99bff; }
@@ -39,12 +39,12 @@
     .button.primary:hover { background:#7261ff; }
     .button.secondary { border:1px solid rgba(255,255,255,.2); }
     .button.secondary:hover { background:rgba(255,255,255,.08); }
-    .phones { height:500px; position:relative; }
-    .phone { position:absolute; width:33%; max-width:214px; padding:5px; border:5px solid #25253a; border-radius:34px; background:#fff; box-shadow:0 26px 62px rgba(0,0,0,.38); overflow:hidden; }
-    .phone img { width:100%; border-radius:23px; }
-    .phone.messages { left:2%; top:88px; transform:rotate(-11deg); }
-    .phone.create { left:34%; top:16px; z-index:2; width:36%; max-width:226px; transform:rotate(1deg); }
-    .phone.notifications { right:0; top:94px; transform:rotate(10deg); }
+    .phones { min-width:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:center; gap:10px; padding:22px 14px; }
+    .phone { position:relative; width:100%; padding:4px; border:5px solid #25253a; border-radius:31px; background:#fff; box-shadow:0 26px 62px rgba(0,0,0,.38); overflow:hidden; }
+    .phone img { width:100%; height:auto; aspect-ratio:461 / 1000; border-radius:21px; object-fit:contain; }
+    .phone.messages { transform:translateY(27px) rotate(-6deg); }
+    .phone.create { z-index:2; transform:translateY(-10px) scale(1.07); }
+    .phone.notifications { transform:translateY(27px) rotate(6deg); }
     .section { padding-block:94px; }
     .section-heading { max-width:720px; margin-bottom:34px; }
     .kicker { display:block; margin-bottom:13px; color:#b5aaff; font-size:.79rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
@@ -73,7 +73,8 @@
     .hero-store-label { display:block; margin-bottom:12px; color:#beb7ff; font-size:.78rem; font-weight:800; letter-spacing:.1em; }
     .store-buttons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
     .store-badge { display:flex; align-items:center; gap:11px; width:100%; min-height:72px; padding:12px 15px; border:1px solid rgba(255,255,255,.2); border-radius:16px; background:#101031; color:#fff; text-align:left; cursor:not-allowed; opacity:.78; }
-    .store-symbol { flex:none; width:30px; font-size:1rem; font-weight:800; line-height:1; text-align:center; }
+    .store-symbol { display:inline-flex; align-items:center; justify-content:center; flex:none; width:30px; height:32px; }
+    .store-symbol svg { display:block; width:27px; height:27px; }
     .store-badge small, .store-badge strong { display:block; }
     .store-badge small { margin-bottom:3px; color:#c2bfdc; font-size:.78rem; }
     .store-badge strong { font-size:1.03rem; line-height:1.2; }
@@ -99,9 +100,9 @@
     .footer-links { display:flex; flex-wrap:wrap; align-items:start; gap:17px 25px; color:#d9d7ee; font-weight:600; font-size:.95rem; }
     .footer-bottom { padding:21px 0 27px; border-top:1px solid rgba(255,255,255,.1); color:#a8a6c4; font-size:.87rem; }
     :focus-visible { outline:3px solid #f7bb71; outline-offset:4px; }
-    @media (max-width:980px) { .desktop-nav { gap:14px; } .hero-inner { grid-template-columns:1fr; padding-bottom:30px; } .hero-copy { max-width:700px; } .phones { width:min(620px,100%); margin:auto; height:480px; } .video-layout { grid-template-columns:1fr; } }
-    @media (max-width:720px) { .container { width:min(100% - 32px, 1180px); } .desktop-nav, .header-inner>.pill-link { display:none; } .mobile-nav { display:block; position:relative; } .mobile-nav summary { list-style:none; display:flex; align-items:center; justify-content:center; width:44px; height:44px; border:1px solid rgba(255,255,255,.2); border-radius:12px; cursor:pointer; font-size:1.4rem; } .mobile-nav summary::-webkit-details-marker { display:none; } .mobile-menu { position:absolute; right:0; top:52px; display:flex; flex-direction:column; gap:0; min-width:220px; padding:8px; border:1px solid rgba(255,255,255,.16); border-radius:16px; background:#24215b; box-shadow:0 15px 30px rgba(0,0,0,.3); } .mobile-menu a { padding:12px 13px; border-radius:9px; font-weight:600; } .mobile-menu a:hover { background:rgba(255,255,255,.1); } .header-inner { min-height:68px; } .hero-inner { min-height:0; padding-block:52px 10px; } h1 { font-size:clamp(3.45rem,12vw,5rem); } .phones { height:430px; } .section { padding-block:68px; } .steps, .feature-list { grid-template-columns:1fr; } .step { min-height:0; } .step-number { margin-bottom:18px; } .feature { display:grid; grid-template-columns:150px 1fr; column-gap:20px; align-items:center; } .feature-image { grid-row:span 2; height:210px; } .feature h3 { margin-top:0; } .footer-main { flex-direction:column; } }
-    @media (max-width:490px) { .hero-copy>p { font-size:1.04rem; } .phones { height:345px; width:116%; margin-left:-8%; } .phone { border-width:3px; padding:3px; border-radius:23px; } .phone img { border-radius:17px; } .phone.messages { top:55px; } .phone.create { top:9px; } .phone.notifications { top:62px; } .feature { display:block; } .feature-image { height:230px; } .store-badge { gap:7px; padding:10px; } .store-symbol { width:24px; font-size:.85rem; } .store-badge strong { font-size:.93rem; } .footer-links { display:grid; grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:980px) { .desktop-nav { gap:14px; } .hero-inner { grid-template-columns:1fr; padding-bottom:30px; } .hero-copy { max-width:700px; } .phones { width:min(620px,100%); margin:auto; } .video-layout { grid-template-columns:1fr; } }
+    @media (max-width:720px) { .container { width:min(100% - 32px, 1180px); } .desktop-nav, .header-inner>.pill-link { display:none; } .mobile-nav { display:block; position:relative; } .mobile-nav summary { list-style:none; display:flex; align-items:center; justify-content:center; width:44px; height:44px; border:1px solid rgba(255,255,255,.2); border-radius:12px; cursor:pointer; font-size:1.4rem; } .mobile-nav summary::-webkit-details-marker { display:none; } .mobile-menu { position:absolute; right:0; top:52px; display:flex; flex-direction:column; gap:0; min-width:220px; padding:8px; border:1px solid rgba(255,255,255,.16); border-radius:16px; background:#24215b; box-shadow:0 15px 30px rgba(0,0,0,.3); } .mobile-menu a { padding:12px 13px; border-radius:9px; font-weight:600; } .mobile-menu a:hover { background:rgba(255,255,255,.1); } .header-inner { min-height:68px; } .hero-inner { min-height:0; padding-block:52px 10px; } h1 { font-size:clamp(3.45rem,12vw,5rem); } .phones { padding-block:38px; } .section { padding-block:68px; } .steps, .feature-list { grid-template-columns:1fr; } .step { min-height:0; } .step-number { margin-bottom:18px; } .feature { display:grid; grid-template-columns:150px 1fr; column-gap:20px; align-items:center; } .feature-image { grid-row:span 2; height:210px; } .feature h3 { margin-top:0; } .footer-main { flex-direction:column; } }
+    @media (max-width:490px) { .hero-copy>p { font-size:1.04rem; } .phones { gap:5px; padding:28px 7px 40px; } .phone { border-width:3px; padding:3px; border-radius:20px; } .phone img { border-radius:14px; } .phone.messages, .phone.notifications { transform:translateY(13px) rotate(0deg); } .phone.create { transform:translateY(-5px) scale(1.07); } .feature { display:block; } .feature-image { height:230px; } .store-badge { gap:7px; padding:10px; } .store-symbol { width:24px; } .store-symbol svg { width:23px; height:23px; } .store-badge strong { font-size:.93rem; } .footer-links { display:grid; grid-template-columns:repeat(2,1fr); } }
     @media (prefers-reduced-motion:reduce) { :root { scroll-behavior:auto; } *,*::before,*::after { transition:none!important; animation:none!important; } }
   </style>
 </head>
@@ -127,8 +128,8 @@
           <div class="hero-store" id="indir" aria-label="Uygulama mağazaları">
             <span class="hero-store-label">UYGULAMAYI İNDİR</span>
             <div class="store-buttons">
-              <button class="store-badge" type="button" disabled aria-label="Google Play indirme bağlantısı yakında"><span class="store-symbol" aria-hidden="true">GP</span><span><small>Yakında</small><strong>Google Play</strong></span></button>
-              <button class="store-badge" type="button" disabled aria-label="App Store indirme bağlantısı yakında"><span class="store-symbol" aria-hidden="true">iOS</span><span><small>Yakında</small><strong>App Store</strong></span></button>
+              <button class="store-badge" type="button" disabled aria-label="Google Play indirme bağlantısı yakında"><span class="store-symbol" aria-hidden="true"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path fill="#34A853" d="M4 2.9v26.2L18.1 16z"/><path fill="#4285F4" d="M4 2.9 18.1 16l4.5-4.2L6.9 2.2C5.8 1.5 4.8 1.8 4 2.9z"/><path fill="#FBBC04" d="m18.1 16 4.5-4.2 5.3 3.2c1.2.7 1.2 1.3 0 2l-5.3 3.2z"/><path fill="#EA4335" d="m4 29.1 14.1-13.1 4.5 4.2-15.7 9.6c-1.1.7-2.1.4-2.9-.7z"/></svg></span><span><small>Yakında</small><strong>Google Play</strong></span></button>
+              <button class="store-badge" type="button" disabled aria-label="App Store indirme bağlantısı yakında"><span class="store-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M15.8 2c-.3 1.4-1.5 2.7-3.1 2.9.1-1.5 1.4-2.8 3.1-2.9ZM19 16.9c-.5 1.2-.8 1.7-1.5 2.8-.9 1.4-2.1 3.1-3.6 3.1-1.3 0-1.6-.8-3.3-.8-1.7 0-2.1.8-3.4.8-1.5.1-2.7-1.6-3.6-3C1.3 16.2.8 11.5 2.3 8.9c1-1.8 2.8-2.9 4.7-2.9 1.5 0 2.7.9 3.6.9.8 0 2.2-1 3.9-.9 1.6.1 3.1.9 4.1 2.2-3.5 1.9-3 6.8.4 8.7Z"/></svg></span><span><small>Yakında</small><strong>App Store</strong></span></button>
             </div>
             <p class="download-note">Mağaza bağlantıları yayınlandığında bu butonlar aktif olacak.</p>
           </div>
