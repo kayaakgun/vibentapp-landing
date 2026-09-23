@@ -604,6 +604,7 @@ function editHobby(id = null) {
       .sort((a, b) => a.sort_order - b.sort_order).map((tip) => tip.content).join("\n");
   }
   $("hobby-photo-hint").hidden = !!id;
+  $("hobby-delete").hidden = !id;
   $("hobby-photo-file").disabled = !id;
   $("hobby-photo-upload").disabled = !id;
   renderHobbyGallery();
@@ -716,6 +717,19 @@ async function removeHobbyPhoto(photo) {
     notify("Fotoğraf galeriden kaldırıldı.");
     await loadHobbies(state.hobbyId);
   } catch (error) { notify(error.message, true); }
+}
+
+async function deleteHobby() {
+  const hobby = state.hobbies.find((item) => item.id === state.hobbyId);
+  if (!hobby || !confirm(`“${hobby.name}” hobisini kalıcı olarak silmek istiyor musun? Bağlı etkinlikler varsa veritabanı silmeyi engeller; görseller depoda kalır.`)) return;
+  const button = $("hobby-delete");
+  button.disabled = true;
+  try {
+    await rpc("admin_delete", { p_table: "hobbies", p_key: { id: hobby.id } });
+    notify("Hobi silindi.");
+    await loadHobbies(null);
+  } catch (error) { notify(`Hobi silinemedi: ${error.message}`, true); }
+  finally { button.disabled = false; }
 }
 
 async function changeVip(row, enable) {
@@ -835,18 +849,21 @@ function renderMemberships() {
 }
 
 function switchView(view) {
+  const contentViews = ["events", "venues", "moods", "categories"];
   $("tables-view").hidden = view !== "tables";
   $("users-view").hidden = view !== "users";
   $("memberships-view").hidden = view !== "memberships";
   $("hobbies-view").hidden = view !== "hobbies";
+  $("content-view").hidden = !contentViews.includes(view);
   $("media-view").hidden = view !== "media";
-  for (const name of ["tables", "users", "memberships", "hobbies", "media"]) {
+  for (const name of ["tables", "users", "memberships", "hobbies", ...contentViews, "media"]) {
     $(`${name}-nav`).classList.toggle("selected", name === view);
   }
-  $("page-title").textContent = ({ tables: "Tablolar", users: "Kullanıcılar", memberships: "VIP Üyelikler", hobbies: "Hobiler", media: "Görseller" })[view];
+  $("page-title").textContent = ({ tables: "Tablolar", users: "Kullanıcılar", memberships: "VIP Üyelikler", hobbies: "Hobiler", events: "Etkinlikler", venues: "Atölye / Mekânlar", moods: "Modlar", categories: "Kategoriler", media: "Görseller" })[view];
   if (view === "users") loadUsers();
   if (view === "memberships") loadMemberships();
   if (view === "hobbies") loadHobbies();
+  if (contentViews.includes(view)) loadContentType(view);
 }
 
 $("login-form").addEventListener("submit", async (event) => {
@@ -884,6 +901,9 @@ $("tables-nav").addEventListener("click", () => switchView("tables"));
 $("users-nav").addEventListener("click", () => switchView("users"));
 $("memberships-nav").addEventListener("click", () => switchView("memberships"));
 $("hobbies-nav").addEventListener("click", () => switchView("hobbies"));
+for (const name of ["events", "venues", "moods", "categories"]) {
+  $(`${name}-nav`).addEventListener("click", () => switchView(name));
+}
 $("media-nav").addEventListener("click", () => switchView("media"));
 let usersSearchTimer;
 $("users-search").addEventListener("input", () => {
@@ -896,6 +916,7 @@ $("users-next").addEventListener("click", () => { if ((state.usersPage + 1) * pa
 $("hobby-search").addEventListener("input", renderHobbyList);
 $("new-hobby").addEventListener("click", () => editHobby());
 $("hobby-form").addEventListener("submit", saveHobby);
+$("hobby-delete").addEventListener("click", deleteHobby);
 $("hobby-photo-upload").addEventListener("click", uploadHobbyPhotos);
 $("membership-search").addEventListener("input", renderMemberships);
 for (const button of document.querySelectorAll("[data-membership-filter]")) {
