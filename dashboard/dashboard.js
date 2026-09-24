@@ -848,22 +848,113 @@ function renderMemberships() {
   }
 }
 
-function switchView(view) {
+async function loadModeration() {
+  $("moderation-state").hidden = false;
+  $("moderation-state").textContent = "Bildirimler yükleniyor…";
+  $("moderation-list").replaceChildren();
+  try {
+    const reports = await rpc("admin_moderation_queue", {
+      p_status: $("moderation-filter").value, p_limit: 50
+    });
+    if (!Array.isArray(reports)) throw new Error("Bildirim listesi alınamadı.");
+    $("moderation-state").hidden = reports.length > 0;
+    if (!reports.length) $("moderation-state").textContent = "Bu durumda bildirim yok.";
+    for (const report of reports) renderModerationReport(report);
+  } catch (error) {
+    $("moderation-state").textContent = `Bildirimler açılamadı: ${error.message}`;
+  }
+}
+
+function renderModerationReport(report) {
+  const card = document.createElement("article");
+  card.className = "moderation-card";
+  const heading = document.createElement("h3");
+  heading.textContent = `${report.reason === "threat" ? "⚠ " : ""}${({
+    message: "Mesaj", user: "Kullanıcı", room: "Sohbet"
+  })[report.target_type] || "İçerik"} bildirimi · ${report.status}`;
+  const meta = document.createElement("p");
+  meta.className = "moderation-meta";
+  meta.textContent = `Bildiren: ${report.reporter_name || "Üye"} · Hedef: ${report.subject_name || report.target_type} · ${new Date(report.created_at).toLocaleString("tr-TR")}`;
+  const reason = document.createElement("p");
+  reason.textContent = `Gerekçe: ${({ harassment: "Taciz/zorbalık", threat: "Tehdit/güvenlik", sexual: "Uygunsuz içerik", spam: "Spam/dolandırıcılık", other: "Diğer" })[report.reason] || report.reason}`;
+  card.append(heading, meta, reason);
+  if (report.details) {
+    const details = document.createElement("p");
+    details.textContent = `Açıklama: ${report.details}`;
+    card.append(details);
+  }
+  if (report.evidence_message) {
+    const evidence = document.createElement("blockquote");
+    evidence.textContent = report.evidence_message;
+    card.append(evidence);
+  }
+  if (["new", "reviewing"].includes(report.status)) {
+    const actions = document.createElement("div");
+    actions.className = "moderation-actions";
+    const select = document.createElement("select");
+    select.setAttribute("aria-label", "Moderasyon kararı");
+    const choices = [
+      ["reviewing", "İncelemeye al"], ["no_violation", "İhlal yok"],
+      ["warn", "Üyeyi uyar"], ["hide_message", "Mesajı gizle"],
+      ["chat_suspend", "7 gün sohbet kısıtı"]
+    ];
+    for (const [value, title] of choices) {
+      if (value === "hide_message" && report.target_type !== "message") continue;
+      if (["warn", "chat_suspend"].includes(value) && !report.subject_user_id) continue;
+      select.add(new Option(title, value));
+    }
+    const note = document.createElement("textarea");
+    note.maxLength = 1000;
+    note.placeholder = "Karar gerekçesi (yönetici kaydı)";
+    note.setAttribute("aria-label", "Karar gerekçesi");
+    const save = document.createElement("button");
+    save.type = "button";
+    save.className = "primary-button";
+    save.textContent = "Kararı kaydet";
+    save.addEventListener("click", async () => {
+      if (select.value !== "reviewing" && !note.value.trim()) {
+        notify("Sonuçlanan karar için gerekçe yaz.", true); return;
+      }
+      if (!confirm(`“${select.selectedOptions[0].textContent}” kararı uygulansın mı?`)) return;
+      save.disabled = true;
+      try {
+        await rpc("admin_moderation_decide", {
+          p_report_id: report.id, p_action: select.value, p_note: note.value.trim()
+        });
+        notify("Moderasyon kararı kaydedildi.");
+        await loadModeration();
+      } catch (error) { notify(error.message, true); save.disabled = false; }
+    });
+    actions.append(select, note, save);
+    card.append(actions);
+  } else if (report.decision_note) {
+    const decision = document.createElement("p");
+    decision.textContent = `Karar: ${report.decision_note}`;
+    card.append(decision);
+  }
+  $("moderation-list").append(card);
+}
+
+function switchView(view, preferredId = null) {
   const contentViews = ["events", "venues", "moods", "categories"];
   $("tables-view").hidden = view !== "tables";
   $("users-view").hidden = view !== "users";
   $("memberships-view").hidden = view !== "memberships";
   $("hobbies-view").hidden = view !== "hobbies";
+  $("moderation-view").hidden = view !== "moderation";
+  $("suggestions-view").hidden = view !== "suggestions";
   $("content-view").hidden = !contentViews.includes(view);
   $("media-view").hidden = view !== "media";
-  for (const name of ["tables", "users", "memberships", "hobbies", ...contentViews, "media"]) {
+  for (const name of ["tables", "users", "moderation", "suggestions", "memberships", "hobbies", ...contentViews, "media"]) {
     $(`${name}-nav`).classList.toggle("selected", name === view);
   }
-  $("page-title").textContent = ({ tables: "Tablolar", users: "Kullanıcılar", memberships: "VIP Üyelikler", hobbies: "Hobiler", events: "Etkinlikler", venues: "Atölye / Mekânlar", moods: "Modlar", categories: "Kategoriler", media: "Görseller" })[view];
+  $("page-title").textContent = ({ tables: "Tablolar", users: "Kullanıcılar", moderation: "Moderasyon", suggestions: "Öneriler", memberships: "VIP Üyelikler", hobbies: "Hobiler", events: "Etkinlikler", venues: "Atölye / Mekânlar", moods: "Modlar", categories: "Kategoriler", media: "Görseller" })[view];
   if (view === "users") loadUsers();
+  if (view === "moderation") loadModeration();
+  if (view === "suggestions") loadSuggestions();
   if (view === "memberships") loadMemberships();
-  if (view === "hobbies") loadHobbies();
-  if (contentViews.includes(view)) loadContentType(view);
+  if (view === "hobbies") loadHobbies(preferredId);
+  if (contentViews.includes(view)) loadContentType(view, preferredId);
 }
 
 $("login-form").addEventListener("submit", async (event) => {
@@ -899,6 +990,10 @@ $("logout-button").addEventListener("click", async () => {
 });
 $("tables-nav").addEventListener("click", () => switchView("tables"));
 $("users-nav").addEventListener("click", () => switchView("users"));
+$("moderation-nav").addEventListener("click", () => switchView("moderation"));
+$("suggestions-nav").addEventListener("click", () => switchView("suggestions"));
+$("moderation-filter").addEventListener("change", loadModeration);
+$("moderation-refresh").addEventListener("click", loadModeration);
 $("memberships-nav").addEventListener("click", () => switchView("memberships"));
 $("hobbies-nav").addEventListener("click", () => switchView("hobbies"));
 for (const name of ["events", "venues", "moods", "categories"]) {

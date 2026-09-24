@@ -33,6 +33,7 @@ const contentDefinitions = {
       { name: "city", label: "Şehir", required: true, initial: "İstanbul" },
       { name: "district", label: "İlçe", required: true },
       { name: "address", label: "Adres", required: true, wide: true },
+      { name: "is_active", label: "Yayında", type: "checkbox", initial: true },
       { name: "description", label: "Mekân açıklaması", type: "textarea", wide: true },
       { name: "latitude", label: "Enlem", type: "number", step: "any", min: -90, max: 90 },
       { name: "longitude", label: "Boylam", type: "number", step: "any", min: -180, max: 180 },

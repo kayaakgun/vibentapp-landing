@@ -7,10 +7,11 @@
   <meta name="theme-color" content="#171444">
   <title>Vibent Yönetim</title>
   <link rel="icon" type="image/png" href="/assets/vibent-icon.png">
-  <link rel="stylesheet" href="/dashboard/dashboard.css?v=20260923c">
+  <link rel="stylesheet" href="/dashboard/dashboard.css?v=20260924b">
   <script defer src="/dashboard/config.js"></script>
-  <script defer src="/dashboard/dashboard.js?v=20260923c"></script>
-  <script defer src="/dashboard/content-editor.js?v=20260923c"></script>
+  <script defer src="/dashboard/dashboard.js?v=20260924b"></script>
+  <script defer src="/dashboard/content-editor.js?v=20260924b"></script>
+  <script defer src="/dashboard/suggestions.js?v=20260924b"></script>
 </head>
 <body>
   <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
@@ -43,6 +44,8 @@
       <nav aria-label="Yönetim bölümleri">
         <button id="tables-nav" class="nav-item selected" type="button">▦ <span>Tablolar</span></button>
         <button id="users-nav" class="nav-item" type="button">♙ <span>Kullanıcılar</span></button>
+        <button id="moderation-nav" class="nav-item" type="button" hidden>⚑ <span>Moderasyon</span></button>
+        <button id="suggestions-nav" class="nav-item" type="button">✧ <span>Öneriler</span></button>
         <button id="memberships-nav" class="nav-item" type="button">✦ <span>VIP Üyelikler</span></button>
         <button id="hobbies-nav" class="nav-item" type="button">✳ <span>Hobiler</span></button>
         <button id="events-nav" class="nav-item" type="button">◷ <span>Etkinlikler</span></button>
@@ -109,6 +112,14 @@
           <form id="content-form" class="hobby-editor"><div class="hobby-editor-head"><div><span class="eyebrow">DETAYLI DÜZENLEME</span><h3 id="content-editor-title">Yeni kayıt</h3></div><div class="editor-actions"><button id="content-delete" class="danger-button" type="button" hidden>Sil</button><button id="content-save" class="primary-button" type="submit">Kaydet</button></div></div><p id="content-error" class="form-error" role="alert" hidden></p><div id="content-fields" class="hobby-fields"></div>
             <div id="content-photos" class="hobby-photos"><h4>Görseller</h4><p id="content-image-help">JPG, en fazla 5 MB.</p><img id="content-cover-preview" class="hobby-cover-preview" alt="Mevcut kapak" hidden><div class="photo-upload-row"><input id="content-photo-file" type="file" accept="image/jpeg,.jpg,.jpeg" multiple><button id="content-photo-upload" type="button">Görsel yükle</button></div><small id="content-photo-hint">Önce kaydı oluştur.</small><div id="content-gallery" class="hobby-gallery"></div></div>
           </form></div>
+      </section>
+      <section id="moderation-view" class="management-view" hidden aria-label="Moderasyon kuyruğu">
+        <div class="section-intro"><span class="eyebrow">GÜVENLİK</span><h2>Bildirimleri incele</h2><p>Üye, mesaj ve sohbet bildirimlerine yalnız yetkili yönetici erişir. İşlemler kayıt altına alınır.</p></div>
+        <div class="management-panel"><div class="search-toolbar"><select id="moderation-filter" aria-label="Bildirim durumu"><option value="open">Açık bildirimler</option><option value="closed">Sonuçlananlar</option><option value="all">Tümü</option></select><button id="moderation-refresh" type="button">Yenile</button></div><p id="moderation-state" class="table-state">Bildirimler yükleniyor…</p><div id="moderation-list" class="moderation-list"></div></div>
+      </section>
+      <section id="suggestions-view" class="management-view" hidden aria-label="İçerik önerileri">
+        <div class="section-intro"><span class="eyebrow">İÇERİK ÖNERİLERİ</span><h2>Kullanıcı önerileri</h2><p>Bilgileri doğrula, mevcut kayıtla eşleştir veya yayına kapalı taslak oluştur. Hiçbir öneri kendiliğinden yayımlanmaz.</p></div>
+        <div class="management-panel"><div class="search-toolbar"><select id="suggestions-filter" aria-label="Öneri durumu"><option value="pending">İncelenecekler</option><option value="approved">Onaylı taslaklar</option><option value="all">Tümü</option><option value="added">Eklenenler</option><option value="rejected">Uygun bulunmayanlar</option></select><button id="suggestions-refresh" type="button">Yenile</button></div><p id="suggestions-state" class="table-state">Öneriler yükleniyor…</p><div id="suggestions-list" class="moderation-list"></div></div>
       </section>
       <section id="media-view" class="media-view" hidden aria-label="Görsel yönetimi"><div class="media-card"><span class="eyebrow">HOBİ GÖRSELLERİ</span><h2>Yeni kapak görseli</h2><p>JPG görseli yükle. Oluşan bağlantıyı kopyalayıp ilgili hobinin görsel alanına yapıştırabilirsin.</p><form id="upload-form"><label for="image-file">Görsel seç</label><input id="image-file" type="file" accept="image/jpeg,.jpg,.jpeg" required><button id="upload-button" class="primary-button" type="submit">Görseli yükle</button></form><div id="upload-result" class="upload-result" hidden><img id="upload-preview" alt="Yüklenen hobi görseli"><label for="upload-url">Görsel bağlantısı</label><div class="copy-row"><input id="upload-url" readonly><button id="copy-url-button" type="button">Kopyala</button></div></div></div></section>
     </main>
